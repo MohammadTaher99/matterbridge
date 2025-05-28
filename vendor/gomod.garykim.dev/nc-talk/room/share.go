@@ -109,5 +109,5 @@ func (t *TalkRoom) ShareFile(path string) (string, error) {
 		return "", fmt.Errorf("failed to send media message: unexpected status code: %d", chatResp.StatusCode())
 	}
 
-	return message, nil
+	return fileID, nil
 }

@@ -214,26 +214,27 @@ func (b *Btalk) handleSendingFile(msg *config.Message, r *Broom) error {
 		b.Log.Debugf("File uploaded successfully to path: %s", path)
 
 		// Share the file with the room
-		shareURL, err := r.room.ShareFile(path)
+		fileID, err := r.room.ShareFile(path)
 		if err != nil {
 			b.Log.Errorf("Failed to share file: %v", err)
 			return err
 		}
-		b.Log.Debugf("File shared successfully, URL: %s", shareURL)
+		b.Log.Debugf("File shared successfully, ID: %s", fileID)
 
-		// Send a message with the file URL
-		message := ""
-		if fi.Comment != "" {
-			message = fi.Comment + " "
+		// If there's a caption or original message, send it
+		if fi.Comment != "" || msg.Text != "" {
+			message := ""
+			if fi.Comment != "" {
+				message = fi.Comment
+			} else {
+				message = msg.Text
+			}
+			_, err = b.sendText(r, msg, message)
+			if err != nil {
+				b.Log.Errorf("Failed to send caption: %v", err)
+				return err
+			}
 		}
-		message += shareURL
-
-		_, err = b.sendText(r, msg, message)
-		if err != nil {
-			b.Log.Errorf("Failed to send message with file URL: %v", err)
-			return err
-		}
-		b.Log.Debugf("Message sent successfully with file URL")
 	}
 	return nil
 }
