@@ -197,21 +197,44 @@ func (b *Btalk) handleFiles(mmsg *config.Message, message *ocs.TalkRoomMessageDa
 func (b *Btalk) handleSendingFile(msg *config.Message, r *Broom) error {
 	for _, f := range msg.Extra["file"] {
 		fi := f.(config.FileInfo)
-		if fi.URL == "" {
+		
+		// Skip if no file data
+		if fi.Data == nil {
 			continue
 		}
 
-		message := ""
-		if fi.Comment != "" {
-			message += fi.Comment + " "
-		}
-		message += fi.URL
-		_, err := b.sendText(r, msg, message)
+		b.Log.Debugf("Preparing to upload file: name=%s, size=%d bytes", fi.Name, len(*fi.Data))
+
+		// Upload the file to Nextcloud
+		path, err := b.user.UploadFile(fi.Data, fi.Name)
 		if err != nil {
+			b.Log.Errorf("Failed to upload file: %v", err)
 			return err
 		}
-	}
+		b.Log.Debugf("File uploaded successfully to path: %s", path)
 
+		// Share the file with the room
+		shareURL, err := r.room.ShareFile(path)
+		if err != nil {
+			b.Log.Errorf("Failed to share file: %v", err)
+			return err
+		}
+		b.Log.Debugf("File shared successfully, URL: %s", shareURL)
+
+		// Send a message with the file URL
+		message := ""
+		if fi.Comment != "" {
+			message = fi.Comment + " "
+		}
+		message += shareURL
+
+		_, err = b.sendText(r, msg, message)
+		if err != nil {
+			b.Log.Errorf("Failed to send message with file URL: %v", err)
+			return err
+		}
+		b.Log.Debugf("Message sent successfully with file URL")
+	}
 	return nil
 }
 
