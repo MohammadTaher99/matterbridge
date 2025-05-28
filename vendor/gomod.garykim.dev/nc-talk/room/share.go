@@ -8,7 +8,6 @@ import (
 	"github.com/monaco-io/request"
 
 	"gomod.garykim.dev/nc-talk/constants"
-	"gomod.garykim.dev/nc-talk/ocs"
 )
 
 // ShareFile shares the file at the given path with the talk room
