@@ -16,6 +16,7 @@ import (
 
 // Miscellaneous errors
 var (
+	ErrClientIsNil     = errors.New("client is nil")
 	ErrNoSession       = errors.New("can't encrypt message for device: no signal session established")
 	ErrIQTimedOut      = errors.New("info query timed out")
 	ErrNotConnected    = errors.New("websocket not connected")
@@ -140,6 +141,7 @@ var (
 var (
 	ErrOriginalMessageSecretNotFound = errors.New("original message secret key not found")
 	ErrNotEncryptedReactionMessage   = errors.New("given message isn't an encrypted reaction message")
+	ErrNotEncryptedCommentMessage    = errors.New("given message isn't an encrypted comment message")
 	ErrNotPollUpdateMessage          = errors.New("given message isn't a poll update message")
 )
 
@@ -183,6 +185,7 @@ var (
 	ErrIQGone                error = &IQError{Code: 410, Text: "gone"}
 	ErrIQResourceLimit       error = &IQError{Code: 419, Text: "resource-limit"}
 	ErrIQLocked              error = &IQError{Code: 423, Text: "locked"}
+	ErrIQRateOverLimit       error = &IQError{Code: 429, Text: "rate-overlimit"}
 	ErrIQInternalServerError error = &IQError{Code: 500, Text: "internal-server-error"}
 	ErrIQServiceUnavailable  error = &IQError{Code: 503, Text: "service-unavailable"}
 	ErrIQPartialServerError  error = &IQError{Code: 530, Text: "partial-server-error"}

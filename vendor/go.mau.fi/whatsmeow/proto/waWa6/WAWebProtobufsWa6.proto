@@ -3,11 +3,22 @@ package WAWebProtobufsWa6;
 option go_package = "go.mau.fi/whatsmeow/proto/waWa6";
 
 message ClientPayload {
+	enum TrafficAnonymization {
+		OFF = 0;
+		STANDARD = 1;
+	}
+
+	enum AccountType {
+		DEFAULT = 0;
+		GUEST = 1;
+	}
+
 	enum Product {
 		WHATSAPP = 0;
 		MESSENGER = 1;
 		INTEROP = 2;
 		INTEROP_MSGR = 3;
+		WHATSAPP_LID = 4;
 	}
 
 	enum ConnectType {
@@ -51,6 +62,7 @@ message ClientPayload {
 			HARDCODED = 2;
 			OVERRIDE = 3;
 			FALLBACK = 4;
+			MNS = 5;
 		}
 
 		optional DNSResolutionMethod dnsMethod = 15;
@@ -64,6 +76,7 @@ message ClientPayload {
 			WIN_STORE = 2;
 			DARWIN = 3;
 			WIN32 = 4;
+			WIN_HYBRID = 5;
 		}
 
 		message WebdPayload {
@@ -170,6 +183,7 @@ message ClientPayload {
 	message InteropData {
 		optional uint64 accountID = 1;
 		optional bytes token = 2;
+		optional bool enableReadReceipts = 3;
 	}
 
 	message DevicePairingRegistrationData {
@@ -210,7 +224,9 @@ message ClientPayload {
 	optional int32 yearClass = 36;
 	optional int32 memClass = 37;
 	optional InteropData interopData = 38;
-	optional bool isPcr = 39;
+	optional TrafficAnonymization trafficAnonymization = 40;
+	optional bool lidDbMigrated = 41;
+	optional AccountType accountType = 42;
 }
 
 message HandshakeMessage {

@@ -7,6 +7,7 @@
 package whatsmeow
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -14,11 +15,11 @@ import (
 	"go.mau.fi/whatsmeow/types"
 )
 
-func (cli *Client) getBroadcastListParticipants(jid types.JID) ([]types.JID, error) {
+func (cli *Client) getBroadcastListParticipants(ctx context.Context, jid types.JID) ([]types.JID, error) {
 	var list []types.JID
 	var err error
 	if jid == types.StatusBroadcastJID {
-		list, err = cli.getStatusBroadcastRecipients()
+		list, err = cli.getStatusBroadcastRecipients(ctx)
 	} else {
 		return nil, ErrBroadcastListUnsupported
 	}
@@ -37,18 +38,13 @@ func (cli *Client) getBroadcastListParticipants(jid types.JID) ([]types.JID, err
 			break
 		}
 	}
-	if selfIndex >= 0 {
-		if cli.DontSendSelfBroadcast {
-			list[selfIndex] = list[len(list)-1]
-			list = list[:len(list)-1]
-		}
-	} else if !cli.DontSendSelfBroadcast {
+	if selfIndex < 0 {
 		list = append(list, ownID)
 	}
 	return list, nil
 }
 
-func (cli *Client) getStatusBroadcastRecipients() ([]types.JID, error) {
+func (cli *Client) getStatusBroadcastRecipients(ctx context.Context) ([]types.JID, error) {
 	statusPrivacyOptions, err := cli.GetStatusPrivacy()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get status privacy: %w", err)
@@ -60,7 +56,7 @@ func (cli *Client) getStatusBroadcastRecipients() ([]types.JID, error) {
 	}
 
 	// Blacklist or all contacts mode. Find all contacts from database, then filter them appropriately.
-	contacts, err := cli.Store.Contacts.GetAllContacts()
+	contacts, err := cli.Store.Contacts.GetAllContacts(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get contact list from db: %w", err)
 	}
