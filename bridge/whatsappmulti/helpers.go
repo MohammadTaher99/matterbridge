@@ -16,6 +16,7 @@ import (
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 	waLog "go.mau.fi/whatsmeow/util/log"
+	_ "modernc.org/sqlite" // needed for sqlite
 )
 
 type ProfilePicInfo struct {
@@ -139,7 +140,7 @@ func (b *Bwhatsapp) getDevice() (*store.Device, error) {
 	device := &store.Device{}
 
 	sessionFile := b.Config.GetString("sessionfile")
-	storeContainer, err := sqlstore.New(context.Background(), "file:"+sessionFile+"?_foreign_keys=on", "file:"+sessionFile+"?_foreign_keys=on", waLog.Stdout("Database", "DEBUG", true))
+	storeContainer, err := sqlstore.New(context.Background(), "sqlite", "file:"+sessionFile+".db?_pragma=foreign_keys(1)&_pragma=busy_timeout=10000", waLog.Stdout("Database", "DEBUG", true))
 	if err != nil {
 		return device, fmt.Errorf("failed to connect to database: %v", err)
 	}
